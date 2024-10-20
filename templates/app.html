@@ -8,6 +8,7 @@
                 const copyButton = document.getElementById('copy-button');
                 const shortenForm = document.getElementById('shortener-form');
                 const revealerForm = document.getElementById('revealer-form');
+                const revealedUrl = document.getElementById('original-url');
 
                 let shortenedUrl = '';
 
@@ -48,26 +49,21 @@
                 revealerForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const formData = new FormData(revealerForm);
-                    const link = formData.get('reveal-url');
+                    let link = formData.get('reveal-url');
                     if (!link || !link.startsWith('http')) return alert('Enter a valid link!');
 
+                    link = link.split('/');
+                    link = link[link.length - 1];
+                    if (!link) return alert('Please enter a valid link!')
+
                     let res = await fetch(
-                            `${window.location.protocol}//${window.location.host}/reveal`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-type':
-                                            'application/json; charset=UTF-8',
-                                },
-                                body: JSON.stringify({
-                                    link: link
-                                })
-                            },
+                            `${window.location.protocol}//${window.location.host}/reveal/${link}`,
+                            { method: 'POST' },
                     );
                     if (!res.ok) return alert('Error: ' + await res.text());
                     res = await res.json();
-                    shortenedUrl = res.link;
-                    copyButton.style.display = 'block';
+                    revealedUrl.value = res.link;
+                    revealedUrl.style.display = 'block';
                 });
 
             }

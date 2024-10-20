@@ -57,3 +57,15 @@ async def shorten():
     session.commit()
 
     return jsonify({ "link": formalLink })
+
+@app.post('/reveal/<id>')
+async def reveal(id):
+    try:
+        url = session.query(URL).filter(URL.key == id).one()
+        return jsonify({ "link": url.value })
+    except NoResultFound:
+        return abort(404)
+    except MultipleResultsFound:
+        return abort(500)    
+
+    
