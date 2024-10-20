@@ -1,3 +1,175 @@
-<html>
-    
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <script>
+        window.onload = async () => {
+                const copyButton = document.getElementById('copy-button');
+                const shortenForm = document.getElementById('shortener-form');
+                const revealerForm = document.getElementById('revealer-form');
+
+                let shortenedUrl = '';
+
+                copyButton.onclick = async () => {
+                    try {
+                        await navigator.clipboard.writeText(shortenedUrl);
+                        copyButton.textContent = 'Copied!';
+                    } catch (error) {
+                        console.error(error.message);
+                    }
+                }
+
+                shortenForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(shortenForm);
+                    const link = formData.get('shorten-url');
+                    if (!link || !link.startsWith('http')) return alert('Enter a valid link!');
+
+                    let res = await fetch(
+                        `${window.location.protocol}//${window.location.host}/shorten`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-type':
+                                    'application/json; charset=UTF-8',
+                            },
+                            body: JSON.stringify({
+                                link: link
+                            })
+                        },
+                    );
+                    if (!res.ok) return alert('Error: ' + res.msg);
+                    res = await res.json();
+                    shortenedUrl = res.link;
+                    copyButton.style.display = 'block';
+                });
+
+                revealerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(revealerForm);
+                    const link = formData.get('reveal-url');
+                    if (!link || !link.startsWith('http')) return alert('Enter a valid link!');
+
+                    let res = await fetch(
+                            `${window.location.protocol}//${window.location.host}/reveal`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-type':
+                                            'application/json; charset=UTF-8',
+                                },
+                                body: JSON.stringify({
+                                    link: link
+                                })
+                            },
+                    );
+                    if (!res.ok) return alert('Error: ' + await res.text());
+                    res = await res.json();
+                    shortenedUrl = res.link;
+                    copyButton.style.display = 'block';
+                });
+
+            }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            width: 400px;
+            margin: 40px auto;
+        }
+        .container.bottom {
+            position: absolute;
+            top: 60%; /* Start positioning in the bottom half */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+        }
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 24px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #333333;
+            color: #f0f0f0;
+            border: 1px solid #444444;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            margin-bottom: 0.75rem;
+        }
+        input[type="text"]:focus {
+            border-color: #6666ff;
+            box-shadow: 0 0 0 3px rgba(102, 102, 255, 0.3);
+        }
+        button {
+            margin-top: 8px;
+            background-color: #6666ff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #5959e6;
+        }
+        .copy-button {
+            margin-top: 0;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #444444;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">URL Shortener</h1>
+    <div class="input-group">
+        <form id="shortener-form">
+            <input type="text" name="shorten-url" placeholder="Enter the URL to shorten" required/>
+            <button class="copy-button" id="copy-button" type="button" style="display: none">Copy Shortened Link</button>
+            <button type="submit">Shorten</button>
+        </form>
+    </div>
+</div>
+
+<div class="container bottom">
+    <h1 class="title">Reveal Original URL</h1>
+    <div class="input-group">
+        <form id="revealer-form">
+            <input type="text" name="reveal-url" placeholder="Enter shortened URL" required/>
+            <input type="text" id="original-url" style="display: none" readonly/>
+            <button>Reveal</button>
+        </form>
+    </div>
+</div>
+</body>
 </html>
