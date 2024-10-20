@@ -35,8 +35,7 @@ window.onload = async () => {
 			},
 		);
 		if (!res.ok) return alert('Error: ' + res.msg);
-		res = await res.json();
-		shortenedUrl = res.link;
+		shortenedUrl = (await res.json()).link;
 		copyButton.style.display = 'block';
 	});
 
@@ -44,16 +43,11 @@ window.onload = async () => {
 		e.preventDefault();
 		const formData = new FormData(revealerForm);
 		let link = formData.get('reveal-url');
-		if (!link || !link.startsWith('http')) return alert('Enter a valid link!');
-
-		link = link.split('/');
+		link = link?.split('/');
 		link = link[link.length - 1];
 		if (!link) return alert('Please enter a valid link!')
 
-		let res = await fetch(
-			`${window.location.protocol}//${window.location.host}/reveal/${link}`,
-			{ method: 'POST' },
-		);
+		let res = await fetch(`${window.location.protocol}//${window.location.host}/reveal/${link}`, { method: 'POST' });
 		if (!res.ok) return alert('Error: ' + await res.text());
 		res = await res.json();
 		revealedUrl.value = res.link;

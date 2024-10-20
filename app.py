@@ -26,6 +26,8 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+print(f"\n\nApplication Successfully Running! Create and view shortened links at {BASE_URL}/panel\n\n")
+
 def generateLink(length):
     chars = string.ascii_letters + string.digits
     return ''.join(secrets.choice(chars) for _ in range(length))
